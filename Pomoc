@@ -1,0 +1,29 @@
+        private void PretragaButun_Click(object sender, EventArgs e)
+        {
+            PretragaRichTextbox.Text = "";
+            var Knjige = XDocument.Load(pathknjige);
+            var Korisnici = XDocument.Load(pathkorisnici);
+            var PosudbaVracanje = XDocument.Load(pathposudbavracanje);
+
+            var CombinedXML = new XDocument();
+            CombinedXML.Add(new XElement("Filter"));
+            CombinedXML.Element("Filter").Add(Knjige.Descendants("Knjige"), Korisnici.Descendants("Korisnici"), PosudbaVracanje.Descendants("PosudivanjaVracanja"));
+            IEnumerable<string> KorisniciFilter = from s in Korisnici.Descendants("Korisnik")
+                                                  where (OIBCheck.Checked == true && s.Element("OIB").Value == KorisnikPretraga.Text) ||
+                                                        (ImeCheck.Checked == true && CombinedXML.Element("Ime").Value == ImePretraga.Text) ||
+                                                        (PrezimeCheck.Checked == true && CombinedXML.Element("Prezime").Value == PrezimePretraga.Text)
+                                                  select s.Element("OIB").Value + " " + s.Element("Ime").Value + " " + s.Element("Prezime").Value + "\n";
+            IEnumerable<string> KnjigeFilter = from s in Knjige.Descendants("Knjiga")
+                                                  where (ISBNCheck.Checked == true && s.Element("ISBN").Value == KnjigaPretraga.Text)
+                                                  select s.Element("ISBN").Value + "\n";
+            IEnumerable<string> PosudbaFilter = from s in PosudbaVracanje.Descendants("Posudba")
+                                                  where (OIBCheck.Checked == true && s.Element("OIB").Value == KorisnikPretraga.Text) ||
+                                                        (ImeCheck.Checked == true && CombinedXML.Element("Ime").Value == ImePretraga.Text) ||
+                                                        (PrezimeCheck.Checked == true && CombinedXML.Element("Prezime").Value == PrezimePretraga.Text)
+                                                  select s.Element("OIB").Value + " " + s.Element("Ime").Value + " " + s.Element("Prezime").Value + "\n";
+            IEnumerable<string> VracanjeFilter = from s in PosudbaVracanje.Descendants("Posudba")
+                                                        where (OIBCheck.Checked == true && s.Element("OIB").Value == KorisnikPretraga.Text) ||
+                                                              (ImeCheck.Checked == true && CombinedXML.Element("Ime").Value == ImePretraga.Text) ||
+                                                              (PrezimeCheck.Checked == true && CombinedXML.Element("Prezime").Value == PrezimePretraga.Text)
+                                                        select s.Element("OIB").Value + " " + s.Element("Ime").Value + " " + s.Element("Prezime").Value + "\n";
+        }
